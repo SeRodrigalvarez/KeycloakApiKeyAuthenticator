@@ -1,0 +1,48 @@
+version: '3'
+
+volumes:
+  postgres_data:
+      driver: local
+
+services:
+  postgres:
+      image: postgres
+      container_name: keycloak_postgress
+      volumes:
+        - postgres_data:/var/lib/postgresql/data
+      networks:
+        keycloak_net:
+      environment:
+        POSTGRES_DB: keycloak
+        POSTGRES_USER: keycloak
+        POSTGRES_PASSWORD: password
+
+  keycloak:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    container_name: keycloak
+    environment:
+      DB_VENDOR: POSTGRES
+      DB_ADDR: postgres
+      DB_DATABASE: keycloak
+      DB_USER: keycloak
+      DB_SCHEMA: public
+      DB_PASSWORD: password
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: admin
+    networks:
+      keycloak_net:
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/auth"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    ports:
+      - 8080:8080
+    depends_on:
+      - postgres
+
+networks:
+  keycloak_net:
+    driver: bridge
