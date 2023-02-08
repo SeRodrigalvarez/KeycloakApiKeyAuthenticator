@@ -43,11 +43,11 @@ public class ApiKeyAuthenticatorFactory implements AuthenticatorFactory {
 	}
 
 	public String getDisplayType() {
-		return "Webapp API key authenticator";
+		return "API key authenticator";
 	}
 
 	public String getReferenceCategory() {
-		return "Webapp Custom Authenticators";
+		return "Custom Authenticators";
 	}
 
 	public boolean isConfigurable() {
@@ -63,7 +63,7 @@ public class ApiKeyAuthenticatorFactory implements AuthenticatorFactory {
 	}
 
 	public String getHelpText() {
-		return "Webapp API key authenticator";
+		return "API key authenticator";
 	}
 
 	public List<ProviderConfigProperty> getConfigProperties() {
