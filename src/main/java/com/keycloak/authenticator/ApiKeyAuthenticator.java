@@ -1,5 +1,7 @@
 package com.keycloak.authenticator;
 
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.List;
 
 import org.keycloak.authentication.AuthenticationFlowContext;
@@ -21,15 +23,26 @@ public class ApiKeyAuthenticator implements Authenticator {
 			context.failure(AuthenticationFlowError.UNKNOWN_USER);
 			return;
 		}
+
+		/**
+		 * Prior Keycloak 19.0.0, use: 
+		 * 
+		 * List<UserModel> result = context.getSession().userStorageManager().searchForUserByUserAttribute(API_KEY_PARAM, apiKey, context.getRealm());
+		 * 
+		 * Keycloak migration 19.0.0 guide: https://www.keycloak.org/docs/latest/upgrading/index.html
+		 */
 		
-		List<UserModel> result = context.getSession().userStorageManager().searchForUserByUserAttribute(API_KEY_PARAM, apiKey, context.getRealm());
+		Stream<UserModel> result = context.getSession().users().searchForUserByUserAttributeStream(context.getRealm(), API_KEY_PARAM, apiKey);
+
+		List<UserModel> userList = result.collect(Collectors.toList());
+
 		
-		if (result.isEmpty() || result.size() != 1) {
+		if (userList.size() != 1) {
 			context.failure(AuthenticationFlowError.UNKNOWN_USER);
 			return;
 		}
-		
-		UserModel keycloakUser = result.get(0);
+
+		UserModel keycloakUser = userList.get(0);
 		
 		context.setUser(keycloakUser);
 		context.success();
